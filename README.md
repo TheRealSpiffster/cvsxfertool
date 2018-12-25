@@ -22,17 +22,22 @@ Usage:
       On the work side:
       
       # modprobe tun
-      # ssh -N -R 127.0.0.1:<port>:127.0.0.1:<port> root@HOME
+      # ssh -N -R 127.0.0.1:<port>:127.0.0.1:<port> root@HOME &
       # cvsxfertool &
-      # bridge addbr br0
+      # brctl addbr br0
       # brctl addif br0 tap0
       # brctl addif br0 eth0:1
+      # ifconfig tap0 up
+      # ifconfig eth0:1 up
+      # ifconfig br0 up
 
       On the laptop side:
   
-      $ modprobe tun
-      $ cvsxfertool home &
-      $ dhclient tap0
+      # modprobe tun
+      # ssh -N -L 127.0.0.1:<port>:127.0.0.1:<port> root@HOME &
+      # cvsxfertool home &
+      # ifconfig tap0 up
+      # dhclient -4 -v tap0 -sf /sbin/dhclient-script-nodefroute
       
-Note: This is initial and untested... Updates will follow
+Note: This is initial... Updates will follow
 
