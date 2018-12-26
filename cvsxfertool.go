@@ -51,15 +51,14 @@ func main() {
 
 func connectToRemote(tun tuntap.Interface) {
 	for {
+		time.Sleep(5 * time.Second)
 		fmt.Println("Connecting...")
 		conn, err := net.Dial("tcp", "127.0.0.1:2000")
 		if err != nil {
 			fmt.Println("error: connect tcp: ", err)
-			continue
+		} else {
+			doChan(tun, conn)
 		}
-
-		doChan(tun, conn)
-		time.Sleep(5 * time.Second)
 	}
 }
 
@@ -77,10 +76,9 @@ func serverFromRemote(tun tuntap.Interface) {
 			conn, err := s.Accept()
 			if err != nil {
 				fmt.Println("Error accepting connection:", err)
-				continue
+			} else {
+				go doChan(tun, conn)
 			}
-
-			go doChan(tun, conn)
 		}
 	}
 }
