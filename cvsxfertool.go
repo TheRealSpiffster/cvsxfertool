@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/exec"
 	"time"
 
 	"github.com/jamescun/tuntap"
@@ -22,16 +23,16 @@ import (
 //   modprobe tun
 //   ssh -L 127.0.0.1:2000:127.0.0.1:2000 root@HOME
 //   cvsxfertool home &
-//   ifconfig tap0 up
+//   # ifconfig tap0 up   (now done internally)
 //   dhclient -v -4 tap0
 //
 // On the remote side
-//   # requrement: set up bridge br0 with eth0 interface and make sure it gets a dhcp
+//   # requrement: set up bridge bridge0 with eth0 interface and make sure it gets a dhcp
 //   modprobe tun
 //   ssh -N -R 127.0.0.1:2000:127.0.0.1:2000 root@HOME
 //   cvsxfertool &
-//   brctl addif br0 tap0
-//   ifconfig tap0 up
+//   # ifconfig tap0 up (now done internally)
+//   # brctl addif bridge0 tap0 (now done internally)
 //
 //
 
@@ -42,11 +43,16 @@ func main() {
 		return
 	}
 
+	cmd := exec.Command("/sbin/ifconfig", "tap0", "up")
+	cmd.Run()
+
 	defer tun.Close()
 
 	if len(os.Args) == 2 && os.Args[1] == "home" {
 		connectToRemote(tun)
 	} else {
+		cmd = exec.Command("/sbin/brctl", "addif", "bridge0", "tap0")
+		cmd.Run()
 		serverFromRemote(tun)
 	}
 }
