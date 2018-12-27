@@ -159,6 +159,7 @@ func recvFromRemote(tun tuntap.Interface, conn net.Conn, done chan bool) {
 func getDataFromConn(conn net.Conn, buf []byte, loc, size int) bool {
 	bytesReceived := 0
 	for bytesReceived < size {
+		fmt.Println("reading from conn: [", loc+bytesReceived, ":", loc+size-bytesReceived, " buf len", len(buf))
 		n, err := conn.Read(buf[loc+bytesReceived : loc+size-bytesReceived])
 		if err != nil {
 			fmt.Println("error: read net:", err)
