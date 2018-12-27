@@ -19,17 +19,13 @@ over the system.
 
 Usage:
 
-      On the work side:
+      On the work side: (assuming you have set up bridge br0 to include the ethernet interface on the lan)
       
       # modprobe tun
       # ssh -N -R 127.0.0.1:<port>:127.0.0.1:<port> root@HOME &
       # cvsxfertool &
-      # brctl addbr br0
       # brctl addif br0 tap0
-      # brctl addif br0 eth0:1
       # ifconfig tap0 up
-      # ifconfig eth0:1 up
-      # ifconfig br0 up
 
       On the laptop side:
   
