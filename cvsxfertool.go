@@ -131,22 +131,22 @@ func sendToRemote(tun tuntap.Interface, conn net.Conn, done chan bool) {
 func recvFromRemote(tun tuntap.Interface, conn net.Conn, done chan bool) {
 	buf := make([]byte, 1600)
 	for {
-		var len uint32
 
 		if !getDataFromConn(conn, buf, 4) {
 			break
 		}
 
-		len = binary.BigEndian.Uint32(buf[0:4])
-		if len+4 > len(buf) {
-			fmt.Println("Error: received packet size", len, " more than", len(buf)-4)
+		blen := int(binary.BigEndian.Uint32(buf[0:4]))
+
+		if blen+4 > len(buf) {
+			fmt.Println("Error: received packet size", blen, " more than", len(buf)-4)
 		}
 
-		if !getDataFromConn(conn, buf[4:len+4], len) {
+		if !getDataFromConn(conn, buf[4:blen+4], blen) {
 			break
 		}
 
-		_, err = tun.Write(buf[4 : n+4])
+		_, err := tun.Write(buf[4 : blen+4])
 		if err != nil {
 			fmt.Println("error: write tap:", err)
 			break
