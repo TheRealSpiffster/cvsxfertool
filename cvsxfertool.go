@@ -133,16 +133,16 @@ func recvFromRemote(tun tuntap.Interface, conn net.Conn, done chan bool) {
 	for {
 		var len uint32
 
-		n, err := conn.Read(buf[0:4])
-		if err != nil {
-			fmt.Println("error: read net:", err)
+		if !getDataFromConn(conn, buf, 4) {
 			break
 		}
 
 		len = binary.BigEndian.Uint32(buf[0:4])
-		n, err = conn.Read(buf[4 : len+4])
-		if err != nil {
-			fmt.Println("error: read net:", err)
+		if len+4 > len(buf) {
+			fmt.Println("Error: received packet size", len, " more than", len(buf)-4)
+		}
+
+		if !getDataFromConn(conn, buf[4:len+4], len) {
 			break
 		}
 
@@ -154,4 +154,19 @@ func recvFromRemote(tun tuntap.Interface, conn net.Conn, done chan bool) {
 	}
 
 	done <- true
+}
+
+func getDataFromConn(conn net.Conn, buf []byte, size int) bool {
+	bytesReceived := 0
+	for bytesReceived < size {
+		n, err := conn.Read(buf[bytesReceived : size-bytesReceived])
+		if err != nil {
+			fmt.Println("error: read net:", err)
+			return false
+		}
+
+		bytesReceived += n
+	}
+
+	return true
 }
