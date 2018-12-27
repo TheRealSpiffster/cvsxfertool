@@ -20,16 +20,18 @@ import (
 // The remote server connects the home and work, making the local tap0 interface appear on the work lan
 // This requires:
 //   modprobe tun
-//   ssh -L 127.0.0.1:2000:127.0.0.1:2000 root@www.renoswe.com
-// On the remote side
-//   modprobe tun
-//   brctl addbr br0
-//   tunctl -t tap0
+//   ssh -L 127.0.0.1:2000:127.0.0.1:2000 root@HOME
+//   cvsxfertool home &
 //   ifconfig tap0 up
-//   ifconfig enp30s0:1 up
+//   dhclient -v -4 tap0
+//
+// On the remote side
+//   # requrement: set up bridge br0 with eth0 interface and make sure it gets a dhcp
+//   modprobe tun
+//   ssh -N -R 127.0.0.1:2000:127.0.0.1:2000 root@HOME
+//   cvsxfertool &
 //   brctl addif br0 tap0
-//   brctl addif br0 enp30s0:1
-//   ssh -N -p 2222 -R 127.0.0.1:2000:127.0.0.1:2000 root@www.renoswe.com
+//   ifconfig tap0 up
 //
 //
 
