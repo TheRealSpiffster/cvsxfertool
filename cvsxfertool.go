@@ -118,9 +118,7 @@ func sendToRemote(tun tuntap.Interface, conn net.Conn, done chan bool) {
 
 		binary.BigEndian.PutUint32(buf, uint32(n))
 
-		_, err = conn.Write(buf[:n+4])
-		if err != nil {
-			fmt.Println("error: write net:", err)
+		if !putDataToConn(conn, buf, 0, n+4) {
 			break
 		}
 	}
@@ -166,6 +164,22 @@ func getDataFromConn(conn net.Conn, buf []byte, loc, size int) bool {
 		}
 
 		bytesReceived += n
+	}
+
+	return true
+}
+
+func putDataToConn(conn net.Conn, buf []byte, loc, size int) bool {
+	bytesSent := 0
+	for bytesSent < size {
+		n, err := conn.Write(buf[loc+bytesSent : loc+size])
+
+		if err != nil {
+			fmt.Println("error: read net:", err)
+			return false
+		}
+
+		bytesSent += n
 	}
 
 	return true
